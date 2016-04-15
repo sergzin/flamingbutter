@@ -23,3 +23,7 @@ delete not connected nodes - `match (n) delete n`
 
 list of subnets connected to more that 2 routers (not p2p)
 `match (a:Prefix)-[r]->(:Router) with a, count(*) as n where n > 2 match (a)-->(z:Router) return a,z`
+
+Smimilar as previous query - find all ISIS DIS nodes (LAN segmens)
+`match (a:Router)-[r]->(z:Router)  where NOT (a.name =~ '.+.00$') return a,r,z`
+
