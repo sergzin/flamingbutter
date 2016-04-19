@@ -1,12 +1,13 @@
+from __future__ import print_function
 import csv
 import sys
 import py2neo
-
 from settings import min_bps, neo4j_url
+from spf import make_request
 
 
 def cvs_reader(inputfile):
-    fieldnames = ['hostname', 'prefix', 'bps']
+    fieldnames = ['Source', 'Destination', 'bps']
     with open(inputfile, 'rb') as cvsfile:
         has_header = csv.Sniffer().has_header(cvsfile.read(1024))
         cvsfile.seek(0)
@@ -17,50 +18,64 @@ def cvs_reader(inputfile):
             yield row
 
 
-class NodeFinder(object):
-    def __init__(self, label):
-        self.label = label
-        self.graph = py2neo.Graph(neo4j_url)
-        self.node_by_name = {}
-        self.other_nodes = {}
-        self._query = "match (n:{label}) where n.name =~ '{name}.*' return n"
-        self._query_to_other = "match (a:{label})--(z:{other}) where id(a) = {a} return z"
-
-    def get_node(self, name):
-        if name in self.node_by_name:
-            return self.node_by_name[name]
-        query = self._query.format(name=name, label=self.label)
-        node = self.graph.cypher.execute_one(query)
-        # node = self.graph.find_one(self.label, property_key='name', property_value=name)
-        self.node_by_name[name] = node
-        return node
-
-    def find_other(self, node, other_label):
-        if node._id in self.other_nodes:
-            return self.other_nodes[node._id]
-        query = self._query_to_other.format(label=self.label, other=other_label, a=node._id)
-        neighbour = self.graph.cypher.execute_one(query)
-        self.other_nodes[node._id] = neighbour
-        return neighbour
-
-
 def main():
+    graph = py2neo.Graph(neo4j_url)
     input_data = cvs_reader(sys.argv[1])
-    routers = NodeFinder('Router')
-    prefixes = NodeFinder('Prefix')
+    routers = {}
     for entry in input_data:
         bps = float(entry['bps'])
-        if bps < min_bps:
+        src = entry['Source']
+        dst = entry['Destination']
+        if min_bps and bps < min_bps:  # if min_bps defined
             continue
-        hostname = entry['hostname']
-        prefix = entry['prefix']
-        start_node = routers.get_node(hostname)
-        prefix_node = prefixes.get_node(prefix)
-        if not all((start_node, prefix_node)):
-            print hostname, 'or', prefix, 'doesnt exist'
+        start_node = routers.get(src)
+        end_node = routers.get(dst)
+        if not start_node:
+            start_node = graph.find_one('Router', property_key='name', property_value=src)
+            routers[src] = start_node
+        if not end_node:
+            end_node = graph.find_one('Router', property_key='name', property_value=dst)
+            routers[dst] = end_node
+        if not all((start_node, end_node)):
+            print(src, 'or', dst, 'node missing')
             continue
-        end_node = prefixes.find_other(prefix_node, 'Router')
-        print start_node.properties['name'], end_node.properties['name'], bps
+        # print(start_node.properties['name'], end_node.properties['name'], bps)
+        r = make_request(start_node, end_node)
+        if not r:
+            print("NO path between %s %s " % (start_node, end_node))
+            continue
+        number_of_ecmp = len(r)
+        for path in r:
+            print(bps / number_of_ecmp, end=' ')
+            bound_nodes = [bind_node(node_url) for node_url in path['nodes']]
+            graph.pull(*bound_nodes)
+            map(lambda x: print(x.properties['name'][:-3], end=' '), bound_nodes)
+            print(end='\n')
+            # flow_node = py2neo.Node('Flow', src=start_node.properties['name'], dst=end_node.properties['name'],
+            #                         demand=bps / number_of_ecmp)
+            # flow_rels = [py2neo.Relationship(flow_node, 'flow', dest) for dest in bound_nodes]
+            # graph.create(flow_node, *flow_rels)
+            # for node_url in path['nodes']:
+            #     nd = py2neo.Node()
+            #     nd.bind(node_url)
+            #     nd.pull()
+            #     print nd.properties['name'],
+            # print path['weight'], path['length']
+            #     for rel_url in path['relationships']:
+            #         rel = py2neo.Rel()
+            #         rel.bind(rel_url)
+            #         # rel.pull()
+            #         if 'demand' not in rel.properties:
+            #             rel.properties['demand'] = bps / number_of_ecmp
+            #         else:
+            #             rel.properties['demand'] += bps / number_of_ecmp
+            #         rel.push()
+
+
+def bind_node(node_url):
+    nd = py2neo.Node()
+    nd.bind(node_url)
+    return nd
 
 
 if __name__ == '__main__':
