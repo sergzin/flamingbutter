@@ -1,0 +1,11 @@
+---
+- name: Provision common tools
+  hosts: all
+  vars_files:
+    - vars/debian.yml
+    - vars/neo4j.yml
+  tasks:
+    - include: tasks/debian.yml
+    - include: tasks/neo4j.yml
+  handlers:
+    - include: handlers/main.yml

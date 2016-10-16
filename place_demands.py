@@ -51,25 +51,6 @@ def main():
             graph.pull(*bound_nodes)
             map(lambda x: print(x.properties['name'][:-3], end=' '), bound_nodes)
             print(end='\n')
-            # flow_node = py2neo.Node('Flow', src=start_node.properties['name'], dst=end_node.properties['name'],
-            #                         demand=bps / number_of_ecmp)
-            # flow_rels = [py2neo.Relationship(flow_node, 'flow', dest) for dest in bound_nodes]
-            # graph.create(flow_node, *flow_rels)
-            # for node_url in path['nodes']:
-            #     nd = py2neo.Node()
-            #     nd.bind(node_url)
-            #     nd.pull()
-            #     print nd.properties['name'],
-            # print path['weight'], path['length']
-            #     for rel_url in path['relationships']:
-            #         rel = py2neo.Rel()
-            #         rel.bind(rel_url)
-            #         # rel.pull()
-            #         if 'demand' not in rel.properties:
-            #             rel.properties['demand'] = bps / number_of_ecmp
-            #         else:
-            #             rel.properties['demand'] += bps / number_of_ecmp
-            #         rel.push()
 
 
 def bind_node(node_url):

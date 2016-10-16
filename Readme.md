@@ -27,3 +27,10 @@ list of subnets connected to more that 2 routers (not p2p)
 Smimilar as previous query - find all ISIS DIS nodes (LAN segmens)
 `match (a:Router)-[r]->(z:Router)  where NOT (a.name =~ '.+.00$') return a,r,z`
 
+Example Dijkstra ECMP query
+```
+match (a:Router{name:'at-vie05b-ri2-re0.00'}), (z:Router{name:'HU-MON-MONR-RA2.00'}), 
+p = allshortestPaths((a)-[r:LINK*]->(z))  
+WITH reduce(cost = 0, rel in rels(p) | cost + rel.metric) as sumcost, p
+return sumcost,extract(n IN nodes(p)| n.name)
+```

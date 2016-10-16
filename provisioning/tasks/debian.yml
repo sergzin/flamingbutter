@@ -1,0 +1,24 @@
+---
+
+- name: setup debian repositories
+  apt_repository: repo={{item}} state=present update_cache=yes
+  with_items: debian_repositories
+
+- name: install common tools
+  apt: pkg={{item}} state=present
+  with_items: debian_packages
+
+- name: "Build /etc/hosts file"
+  lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_host }} {{item}}" state=present
+  when: hostvars[item].ansible_host is defined
+  with_items: groups['all']
+
+- name: Copy ansible inventory file to default location
+  copy: src=hosts dest=/etc/ansible/hosts mode=0644
+
+- name: create ansible logs folder
+  file: path=/var/log/ansible state=directory mode=0777 owner=vagrant
+
+- name: Install Python packages
+  pip: name={{ item.name }} version={{ item.version }}
+  with_items: python_modules

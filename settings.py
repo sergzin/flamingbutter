@@ -4,4 +4,4 @@ influxdb_host = 'influxdb.server'
 influxdb_port = 8086
 
 #  Minimum bandwidth demand in bits per second
-min_bps = 10000000  # 10 M
+min_bps = None  # 10 M

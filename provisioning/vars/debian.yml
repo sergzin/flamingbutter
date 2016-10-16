@@ -1,0 +1,24 @@
+---
+
+debian_repositories:
+  - '''deb http://ftp.nl.debian.org/debian jessie main contrib non-free'''
+  - '''deb http://ftp.nl.debian.org/debian jessie-backports main contrib non-free'''
+  - '''deb http://security.debian.org jessie/updates contrib non-free'''
+debian_packages:
+  - htop
+  - vim-nox
+  - iotop
+  - curl
+  - git
+  - tcpdump
+  - sshpass
+  - python-pip
+  - python-lxml
+
+python_modules:
+  -
+    name: influxdb
+    version: 3.0.0
+  -
+    name: py2neo
+    version: 2.0.9
