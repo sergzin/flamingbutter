@@ -1,9 +1,12 @@
 
 ## FlamingButter
 
+
+
 ### Installation requirements
 
-- Neo4j server installed locally
+Project should work fine on Linux and OSx with the following requirements.
+- Neo4j server version 2.3.7 installed locally
     - disable authentication `dbms.security.auth_enabled=false` in configuration file `neo4j-server.properties`
 - python 2.7
 - python modules
@@ -11,20 +14,31 @@
     - py2neo==2.0.8
     - requests==2.9.1
 
+On Windown use Vagrant + Virtualbox.
+From the root of the project type `vagrant up`
+
+
 ### Files
 
 `isisparser.py` - import ISIS topological data in Neo4j graph database
-    it require file with output from command `show isis database detail | display xml`
+it require file with output from command `show isis database detail | display xml`
+
+### Neo4j Database schema
+
+
 
 ### CypherQueries
 
+The following two queries delete all information in neo4j database.
 delete connected nodes and links - `match (n)-[r]-() delete n,r`
 delete not connected nodes - `match (n) delete n`
 
 list of subnets connected to more that 2 routers (not p2p)
+
 `match (a:Prefix)-[r]->(:Router) with a, count(*) as n where n > 2 match (a)-->(z:Router) return a,z`
 
 Smimilar as previous query - find all ISIS DIS nodes (LAN segmens)
+
 `match (a:Router)-[r]->(z:Router)  where NOT (a.name =~ '.+.00$') return a,r,z`
 
 Example Dijkstra ECMP query

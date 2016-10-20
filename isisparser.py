@@ -43,6 +43,8 @@ def create_schema(graph):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        exit('Specify input file with ISIS database')
     g = Graph(neo4j_url)
     create_schema(g)
     main(g)
