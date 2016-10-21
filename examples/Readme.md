@@ -39,3 +39,6 @@ router_b,router_g,10
 2.5 router_b router_a router_c router_g
 ```
 
+### Example topology
+
+![Example topology](example-topology.png)
