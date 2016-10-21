@@ -49,7 +49,7 @@ def main():
             print(bps / number_of_ecmp, end=' ')
             bound_nodes = [bind_node(node_url) for node_url in path['nodes']]
             graph.pull(*bound_nodes)
-            map(lambda x: print(x.properties['name'][:-3], end=' '), bound_nodes)
+            map(lambda x: print(x.properties['name'], end=' '), bound_nodes)
             print(end='\n')
 
 

@@ -14,8 +14,9 @@ Project should work fine on Linux and OSx with the following requirements.
     - py2neo==2.0.8
     - requests==2.9.1
 
-On Windown use Vagrant + Virtualbox.
+On Windows use Vagrant + VirtualBox.
 From the root of the project type `vagrant up`
+When VM is up open in Neo4j browser http://localhost:7474/browser/ 
 
 
 ### Files
@@ -29,7 +30,7 @@ between Source and Destination ISIS Nodes and place bandwidth per path.
 `get_demands.py` - (optional) download and save LSP demands from InfluxDB.
 
 `resolve_demands.py` - (optional) helper script to convert CSV file with 
-hostname,loopback IP,LSP bandwidth to a CSV file with Source,Destination,LSP bandwidth
+Hostname,Loopback IP,LSP bandwidth to a CSV file with Source,Destination,LSP bandwidth
 
 `settings.py` - project settings in Python file
 

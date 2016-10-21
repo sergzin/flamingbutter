@@ -1,0 +1,13 @@
+:START_ID,metric:int,:END_ID,:TYPE
+router_a,10,router_b,LINK
+router_b,10,router_a,LINK
+router_a,20,router_c,LINK
+router_a,10,router_e,LINK
+router_b,20,router_d,LINK
+router_b,10,router_f,LINK
+router_e,10,router_c,LINK
+router_f,10,router_d,LINK
+router_c,10,router_g,LINK
+router_d,10,router_h,LINK
+router_g,10,router_h,LINK
+router_h,10,router_g,LINK

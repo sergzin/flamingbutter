@@ -1,0 +1,5 @@
+Source,Destination,bps
+router_a,router_g,100
+router_a,router_h,10
+router_b,router_h,100
+router_b,router_g,10
