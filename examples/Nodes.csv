@@ -1,4 +1,4 @@
-name:ID:Label
+name:ID,:Label
 router_a,Router
 router_b,Router
 router_c,Router
