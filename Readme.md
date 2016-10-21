@@ -1,6 +1,6 @@
 
 ## FlamingButter
-
+This project visualise ISIS L2 topology using Neo4j database and help planning MPLS LSP bandwidth demands. 
 
 
 ### Installation requirements
@@ -21,9 +21,39 @@ From the root of the project type `vagrant up`
 ### Files
 
 `isisparser.py` - import ISIS topological data in Neo4j graph database
-it require file with output from command `show isis database detail | display xml`
+it require file with output from command `show isis database extensive | display xml`
+
+`place_demands.py` - uses Neo4j API to calculate a path 
+between Source and Destination ISIS Nodes and place bandwidth per path.
+
+`get_demands.py` - (optional) download and save LSP demands from InfluxDB.
+
+`resolve_demands.py` - (optional) helper script to convert CSV file with 
+hostname,loopback IP,LSP bandwidth to a CSV file with Source,Destination,LSP bandwidth
+
+`settings.py` - project settings in Python file
+
+`spf.py` - implementation of REST API query to Neo4j DB.
+
 
 ### Neo4j Database schema
+
+#### What is connected and how?
+```
+// What is related, and how
+MATCH (a)-[r]->(b)
+WHERE labels(a) <> [] AND labels(b) <> []
+RETURN DISTINCT head(labels(a)) AS This, type(r) as To, head(labels(b)) AS That
+LIMIT 10
+```
+
+|  This	|  To	| That
+|-------|-------|------
+|Router	|LINK	|Router
+|Prefix	|ISIS	|Router
+
+Relationship `LINK` and `ISIS` have property called `metric`.
+`metric` represent ISIS cost.
 
 
 
