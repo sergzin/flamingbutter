@@ -18,9 +18,9 @@ def cvs_reader(inputfile):
             yield row
 
 
-def main():
+def main(args):
     graph = py2neo.Graph(neo4j_url)
-    input_data = cvs_reader(sys.argv[1])
+    input_data = cvs_reader(args.file)
     routers = {}
     for entry in input_data:
         bps = float(entry['bps'])
@@ -46,11 +46,15 @@ def main():
             continue
         number_of_ecmp = len(r)
         for path in r:
-            print(bps / number_of_ecmp, end=' ')
+            flow_rate = bps / number_of_ecmp
+            print(flow_rate, end=' ')
+
             bound_nodes = [bind_node(node_url) for node_url in path['nodes']]
             graph.pull(*bound_nodes)
             map(lambda x: print(x.properties['name'], end=' '), bound_nodes)
             print(end='\n')
+            if args.simN is not None:
+                place_flows(bound_nodes, graph, label="Sim%s" % args.simN, rate=flow_rate)
 
 
 def bind_node(node_url):
@@ -59,7 +63,30 @@ def bind_node(node_url):
     return nd
 
 
+def place_flows(nodes, graph, label="Sim", rate=0):
+    chunks = split_in_pairs(nodes)
+    for src, dst in chunks:
+        flow = graph.match_one(start_node=src, rel_type=label, end_node=dst)
+        if not flow:
+            # print("no flow created yet")
+            flow = py2neo.Relationship(src, label, dst, rate=0)
+            graph.create_unique(flow)
+        flow.properties['rate'] = flow.properties['rate'] + rate
+        flow.push()
+        # print(src, '->', dst, label, rate)
+
+
+def split_in_pairs(input_list):
+    for x in range(0, len(input_list) - 1):
+        yield tuple(input_list[x:x + 2])
+
+
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        exit('Specify input demands file')
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Compute best path and places demands')
+    parser.add_argument("--file", required=True, help="Specify path to input demands")
+    parser.add_argument("--simN", required=False, type=int, help="Specify simulation number. Sim_N Label will be created in Neo4j")
+    args = parser.parse_args()
+
+    main(args)
