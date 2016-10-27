@@ -51,6 +51,7 @@ LIMIT 10
 |  This	|  To	| That
 |-------|-------|------
 |Router	|LINK	|Router
+|Router	|SimNN	|Router
 |Prefix	|ISIS	|Router
 
 Relationship `LINK` and `ISIS` have property called `metric`.

@@ -24,7 +24,7 @@ router_b,router_g,10
 ```
 
 ```
-# python place_demands.py examples/demands.csv
+# python place_demands.py --file examples/demands.csv
 50.0 router_a router_e router_c router_g
 50.0 router_a router_c router_g
 2.5 router_a router_e router_c router_g router_h
@@ -42,3 +42,15 @@ router_b,router_g,10
 ### Example topology
 
 ![Example topology](example-topology.png)
+
+### Place MPLS LSPs demands
+
+```
+# python place_demands.py --file examples/demands.csv --simN 1
+```
+
+`--simN` is an optional parameter that require a number. 
+It will summarize demands in one direction between two nodes.
+Relationship label is `SimN` where `N` is a number.
+
+![Placed demands](placed-demands.png)
