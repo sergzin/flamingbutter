@@ -54,3 +54,31 @@ It will summarize demands in one direction between two nodes.
 Relationship label is `SimN` where `N` is a number.
 
 ![Placed demands](placed-demands.png)
+
+# Show SPF with APOC plugins
+
+## path between two nodes
+```
+match (s:Router{name:"nl-ams09b-ri1-re0.00"}), (e:Router{name:"us-sjo01a-ri3-re0.00"}) 
+CALL apoc.algo.dijkstra(s,e,'LINK','metric')  YIELD path, weight
+WITH path,
+     extract(n IN nodes(path)| n.name) as names,
+     extract(r IN relationships(path)| r.metric) as metrics
+RETURN distinct(
+		HEAD(names) + 
+       		REDUCE(acc = [], i in RANGE(1,size(metrics)) | 
+              acc  + metrics[i-1] + names[i])
+       )
+```
+
+# path between one node and others
+```
+match (s:Router{name:"nl-ams09b-ri1-re0.00"}), (e:Router)  where e.name =~ 'us-.+'
+CALL apoc.algo.dijkstra(s,e,'LINK>','metric')  YIELD path, weight
+WITH path, weight,
+     extract(n IN nodes(path)| n.name) as names,
+     extract(r IN relationships(path)| r.metric) as metrics
+RETURN DISTINCT HEAD(names) + 
+       REDUCE(acc = [], i in RANGE(1,size(metrics)) | 
+              acc  + metrics[i-1] + names[i]) as SP, weight
+```

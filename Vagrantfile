@@ -17,6 +17,8 @@ Vagrant.configure(2) do |config|
     end
     linux.vm.provider "virtualbox" do |vb|
       vb.check_guest_additions = false
+	  vb.memory = 2048
+	  vb.cpus = 2
     end
   end
 

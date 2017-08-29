@@ -7,9 +7,17 @@ from settings import influxdb_host, influxdb_port, influxdb_db
 
 
 def get_demands_from_influx():
-    query = "select hostname, prefix, max(bps) as bps from ldp where time > now() - 30m and type = 'Ingress'  group by hostname, prefix"
+    params = {
+        'chunk_size': 9000,
+        'chunked': 'true',
+    }
+    # query = "select hostname, prefix, max(bps) as bps from ldp where time > now() - 30m and type = 'Ingress'  group by hostname, prefix"
+    query = "select hostname, prefix, max(bps) as bps from ldp where " \
+            "time > '2017-03-23 22:00:00' and " \
+            "time < '2017-03-23 22:30:00' and " \
+            "type = 'Ingress' AND bps > 10000000 group by hostname, prefix"
     client = influxdb.InfluxDBClient(host=influxdb_host, port=influxdb_port, database=influxdb_db)
-    return client.query(query)
+    return client.query(query, chunked=True, params=params)
 
 
 def main():

@@ -47,11 +47,13 @@ def main(args):
         number_of_ecmp = len(r)
         for path in r:
             flow_rate = bps / number_of_ecmp
-            print(flow_rate, end=' ')
+            print(flow_rate, end=';')
 
             bound_nodes = [bind_node(node_url) for node_url in path['nodes']]
             graph.pull(*bound_nodes)
-            map(lambda x: print(x.properties['name'], end=' '), bound_nodes)
+            path_length = len(bound_nodes)
+            print(path_length-1, end=';')
+            map(lambda x: print(x.properties['name'], end=';'), [bound_nodes[0], bound_nodes[-1]] )
             print(end='\n')
             if args.simN is not None:
                 place_flows(bound_nodes, graph, label="Sim%s" % args.simN, rate=flow_rate)
